@@ -1,10 +1,10 @@
 "use client";
 
 // system packages
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // components
-import MainContent from "../_templates/page/MainContent";
-import ChatBox from "../_components/chat/ChatBox";
+import MainContent from "../../_templates/page/MainContent";
+import ChatBox from "../../_components/chat/ChatBox";
 import FocusedImage from "@/app/_components/image/FocusedImage";
 // tests
 

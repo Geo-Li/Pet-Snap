@@ -1,7 +1,9 @@
+"use client";
+
 // shadcn components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 // components
-import SideBarComponent from "../_templates/page/SideBarComponent";
+import SideBarComponent from "../../_templates/page/SideBarComponent";
 
 export default function ForumLayout({
   children,
@@ -11,7 +13,7 @@ export default function ForumLayout({
   return (
     <SidebarProvider className="flex flex-row justify-between">
       <SideBarComponent className="w-[25dvw]" />
-      <main className="w-[75dvw] min-h-screen">{children}</main>
+      <main className="min-h-screen w-[75dvw]">{children}</main>
     </SidebarProvider>
   );
 }
