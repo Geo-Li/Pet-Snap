@@ -3,7 +3,7 @@
 // shadcn components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 // components
-import SideBarComponent from "../../_templates/page/SideBarComponent";
+import SideBarComponent from "./_components/SideBarComponent";
 
 export default function ForumLayout({
   children,

@@ -1,14 +1,24 @@
 // system packages
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-// icons
+import { useMessages } from "@/hooks/use-messages";
+// assets
 import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 // shadcn components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default function ChatBox() {
+export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const { messages, loading, sendMessage } = useMessages(otherUserId || "");
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newMessage.trim() || !otherUserId) return;
+    await sendMessage(newMessage);
+    setNewMessage("");
+  }
 
   return (
     <div className="fixed bottom-4 right-4 w-[600px] rounded-lg border bg-white shadow-lg">
@@ -27,6 +37,11 @@ export default function ChatBox() {
           isOpen ? "max-h-[850px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
+        {otherUserId ? (
+          <div className="p-4">Placeholder</div>
+        ) : (
+          <div className="p-4">Select someone from the sidebar to start chatting!</div>
+        )}
         <div className="h-[750px] overflow-y-auto p-4">This is the content</div>
 
         {/* Input area */}
@@ -35,10 +50,14 @@ export default function ChatBox() {
             <Input
               type="text"
               placeholder="Aa"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
               className="w-full rounded-md border p-2 focus-visible:ring-emerald-300"
             />
             <Button
-              type="submit"
+              type="button"
+              onClick={handleSend}
+              disabled={!otherUserId}
               variant="outline"
               className="shadow-sm shadow-green-500"
             >

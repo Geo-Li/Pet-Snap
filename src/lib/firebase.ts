@@ -3,6 +3,7 @@
 import { env } from "@/env";
 // firebase
 import { getApp, getApps, initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 import { getAuth, signOut } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
@@ -22,8 +23,8 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const db = getDatabase(app);
 
 export async function logOut() {
   await signOut(auth);
 }
-

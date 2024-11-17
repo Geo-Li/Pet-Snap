@@ -2,16 +2,17 @@
 
 // system packages
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 // --firebase
 import { signInWithGoogle } from "@/lib/auth/google";
+import { saveUserData } from "@/server/realtime/users";
 // assets
 import { Space_Grotesk } from "next/font/google";
 import GoogleIcon from "@/app/_assets/GoogleIcon";
 import { PhoneIcon } from "lucide-react";
 // shadcn components
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ const LoginPage = () => {
     try {
       const user = await signInWithGoogle();
       console.log("Google login success", user);
+      await saveUserData(user);
       router.push("/forum");
     } catch (error) {
       console.error("Google login failed", error);
