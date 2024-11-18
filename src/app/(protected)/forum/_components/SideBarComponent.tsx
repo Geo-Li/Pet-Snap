@@ -31,7 +31,7 @@ export default function SideBarComponent({
 
   const filteredUsers = users.filter(
     (user) =>
-      user.displayName?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      user.displayName?.toLowerCase().includes(userSearchQuery.toLowerCase()) ??
       user.email?.toLowerCase().includes(userSearchQuery.toLowerCase()),
   );
 

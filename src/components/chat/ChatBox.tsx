@@ -5,7 +5,7 @@ import { useMessages } from "@/hooks/use-messages";
 import { getUserData } from "@/server/realtime/users";
 import { auth } from "@/lib/firebase";
 // types
-import { MyUser } from "@/types/realtime_db";
+import type { MyUser } from "@/types/realtime_db";
 // assets
 import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 // shadcn components
@@ -19,17 +19,17 @@ export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [otherUser, setOtherUser] = useState<MyUser | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
-  const { messages, loading, sendMessage } = useMessages(otherUserId || "");
+  const { messages, loading, sendMessage } = useMessages(otherUserId ?? "");
 
   useEffect(() => {
     if (!otherUserId) return;
 
     const fetchUserData = async () => {
-      const userData = await getUserData(otherUserId);
+      const userData = (await getUserData(otherUserId)) as MyUser | null;
       setOtherUser(userData);
     };
 
-    fetchUserData();
+    void fetchUserData();
   }, [otherUserId]);
 
   async function handleSend(e: React.FormEvent) {
@@ -44,7 +44,7 @@ export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-stone-900 p-2">
         <h3 className="px-2 text-xl font-semibold">
-          {otherUserId ? otherUser?.displayName || "Anonymous" : "Chat"}
+          {otherUserId ? (otherUser?.displayName ?? "Anonymous") : "Chat"}
         </h3>
         <Button onClick={() => setIsOpen(!isOpen)} variant="ghost" size="icon">
           {isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}

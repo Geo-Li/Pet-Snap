@@ -1,4 +1,5 @@
 import { auth, db } from "@/lib/firebase";
+import { MyUser } from "@/types/realtime_db";
 import { User } from "@firebase/auth";
 import { get, ref, set } from "firebase/database";
 
@@ -9,7 +10,7 @@ export async function saveUserData(user: User) {
     const userRef = ref(db, `users/${user.uid}`);
     await set(userRef, {
       userId: user.uid,
-      displayName: user.displayName || "Anonymous",
+      displayName: user.displayName ?? "Anonymous",
       email: user.email,
       photoURL: user.photoURL,
       status: "online",
@@ -24,7 +25,7 @@ export async function getUserData(userId: string) {
   try {
     const userRef = ref(db, `users/${userId}`);
     const snapshot = await get(userRef);
-    return snapshot.val();
+    return snapshot ? snapshot.val() as MyUser : null;
   } catch (error) {
     console.error("Error fetching user data", error);
   }

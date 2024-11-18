@@ -14,7 +14,7 @@ import { createChatId } from "@/utils/ids";
 import { Message } from "@/types/chat";
 import { storeMessage } from "@/server/realtime/messages";
 
-export function useMessages(otherUserId: string, limit: number = 20) {
+export function useMessages(otherUserId: string, limit = 20) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +31,7 @@ export function useMessages(otherUserId: string, limit: number = 20) {
 
     // Listener for new messages
     const newMessageListener = onChildAdded(recentMessagesQuery, (snapshot) => {
-      const message: Message = snapshot.val();
+      const message = snapshot.val() as Message;
       if (!message) return;
 
       setMessages((prevMessages) => {
@@ -55,7 +55,7 @@ export function useMessages(otherUserId: string, limit: number = 20) {
     return () => {
       off(messagesRef);
     };
-  }, [otherUserId]);
+  }, [otherUserId, limit]);
 
   // Function to send a new message
   async function sendMessage(content: string, imageUrl?: string) {

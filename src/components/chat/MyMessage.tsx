@@ -27,7 +27,7 @@ export default function MyMessage({ currUser, message }: MyMessageProps) {
       </div>
 
       <Image
-        src={currUser?.photoURL || "/default-image.png"}
+        src={currUser?.photoURL ?? "/default-image.png"}
         alt="User avatar"
         width={30}
         height={30}

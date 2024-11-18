@@ -21,10 +21,9 @@ export function useUsers() {
         try {
           const usersData: MyUser[] = [];
           snapshot.forEach((childSnapshot) => {
-            const userData = childSnapshot.val();
+            const userData = childSnapshot.val() as MyUser;
             if (childSnapshot.key !== auth.currentUser?.uid) {
               usersData.push({
-                id: childSnapshot.key,
                 ...userData,
               });
             }

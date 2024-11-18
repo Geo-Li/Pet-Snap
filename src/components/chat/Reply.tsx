@@ -12,7 +12,7 @@ export default function Reply({ otherUser, message }: ReplyProps) {
     <div className="flex items-start space-x-3">
       {/* User avatar */}
       <Image
-        src={otherUser?.photoURL || "/default-image.png"}
+        src={otherUser?.photoURL ?? "/default-image.png"}
         alt="User avatar"
         width={30}
         height={30}
