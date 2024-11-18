@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-// utils
-import { createChatId } from "@/utils/ids";
 import {
   ref,
   query,
@@ -8,24 +6,22 @@ import {
   orderByChild,
   limitToLast,
   onChildAdded,
-  onChildChanged,
-  onValue,
   off,
-  get,
-  set,
   serverTimestamp,
 } from "firebase/database";
 import { auth, db } from "@/lib/firebase";
+import { createChatId } from "@/utils/ids";
 import { Message } from "@/types/chat";
+import { storeMessage } from "@/server/realtime/messages";
 
 export function useMessages(otherUserId: string, limit: number = 20) {
-  const [messages, setMessages] = useState<Map<string, Message>>(new Map());
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!auth.currentUser || !otherUserId) return;
-    const chatId = createChatId(auth.currentUser.uid, otherUserId);
 
+    const chatId = createChatId(auth.currentUser.uid, otherUserId);
     const messagesRef = ref(db, `chats/${chatId}/messages`);
     const recentMessagesQuery = query(
       messagesRef,
@@ -33,57 +29,45 @@ export function useMessages(otherUserId: string, limit: number = 20) {
       limitToLast(limit),
     );
 
-    // Listener for new messages update
+    // Listener for new messages
     const newMessageListener = onChildAdded(recentMessagesQuery, (snapshot) => {
+      const message: Message = snapshot.val();
+      if (!message) return;
+
       setMessages((prevMessages) => {
-        const newMessages = new Map(prevMessages);
-        newMessages.set(snapshot.key!, {
-          id: snapshot.key!,
-          ...snapshot.val(),
-        });
-        return newMessages;
+        // Check if the message already exists
+        if (prevMessages.some((msg) => msg.id === snapshot.key)) {
+          return prevMessages;
+        }
+        // Add new message and sort by timestamp
+        const newMessages = [
+          ...prevMessages,
+          { id: snapshot.key!, ...message },
+        ];
+        return newMessages.sort(
+          (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
+        );
       });
       setLoading(false);
     });
 
-    // Listener for updates on old messages
-    const messagesUpdateListener = onChildChanged(messagesRef, (snapshot) => {
-      setMessages((prevMessages) => {
-        const updatedMessages = new Map(prevMessages);
-        updatedMessages.set(snapshot.key!, {
-          id: snapshot.key!,
-          ...snapshot.val(),
-        });
-        return updatedMessages;
-      });
-      setLoading(false);
-    });
-
+    // Cleanup listener on unmount
     return () => {
-      //   off(messagesRef);
-      newMessageListener();
-      messagesUpdateListener();
+      off(messagesRef);
     };
   }, [otherUserId]);
 
+  // Function to send a new message
   async function sendMessage(content: string, imageUrl?: string) {
-    if (!auth.currentUser) return;
-    const chatId = createChatId(auth.currentUser.uid, otherUserId);
-    const messagesRef = ref(db, `chats/${chatId}/messages`);
+    if (!auth.currentUser || !otherUserId) return;
 
-    await push(messagesRef, {
-      content,
-      imageUrl,
-      userId: auth.currentUser.uid,
-      senderName: auth.currentUser.displayName || "",
-      timestamp: serverTimestamp(),
-    });
+    const chatId = createChatId(auth.currentUser.uid, otherUserId);
+    await storeMessage(chatId, otherUserId, content, imageUrl);
   }
 
+  // Return sorted messages and loading state
   return {
-    messages: Array.from(messages.values()).sort(
-      (oldMessage, newMessage) => oldMessage.timestamp - newMessage.timestamp,
-    ),
+    messages,
     loading,
     sendMessage,
   };

@@ -1,8 +1,8 @@
 export type Message = {
   id?: string;
   content: string;
-  userId: string;
-  senderName: string;
+  senderId: string;
+  receiverId: string;
   timestamp: number;
   imageUrl?: string;
 };

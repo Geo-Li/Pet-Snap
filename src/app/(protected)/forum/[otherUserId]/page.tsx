@@ -12,7 +12,6 @@ import FocusedImage from "@/components/image/FocusedImage";
 export default function ForumPage() {
   const router = useRouter();
   const { otherUserId } = useParams();
-  console.log(otherUserId);
   const [isImageFocused, setIsImageFocused] = useState<boolean>(false);
 
   return (

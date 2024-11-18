@@ -53,23 +53,25 @@ export default function SideBarComponent({
             <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500" />
           </div>
         ) : (
-          <div className="mx-auto my-5 flex flex-row space-y-5">
-            {filteredUsers.map((user) => (
-              <div key={user.uid} className="">
-                <Button
-                  onClick={() => handleChat(user.userId)}
-                  variant="outline"
-                  className="border-stone-800 from-rose-100 to-stone-100 px-5 py-9 hover:bg-gradient-to-r"
-                >
-                  <span className="flex flex-col">
-                    <span className="flex justify-start text-lg font-medium">
-                      {user.displayName}
+          <div className="mx-auto my-5 flex w-auto">
+            <div className="inline-flex flex-col items-center space-y-5">
+              {filteredUsers.map((user) => (
+                <div key={user.userId} className="w-full">
+                  <Button
+                    onClick={() => handleChat(user.userId)}
+                    variant="outline"
+                    className="w-full border-stone-800 from-rose-100 to-stone-100 px-5 py-9 hover:bg-gradient-to-r"
+                  >
+                    <span className="flex w-full flex-col">
+                      <span className="text-left text-lg font-medium">
+                        {user.displayName}
+                      </span>
+                      <span className="text-left">{user.email}</span>
                     </span>
-                    <span>{user.email}</span>
-                  </span>
-                </Button>
-              </div>
-            ))}
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </SidebarContent>

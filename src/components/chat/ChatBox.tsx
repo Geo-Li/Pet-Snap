@@ -1,17 +1,36 @@
 // system packages
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMessages } from "@/hooks/use-messages";
+import { getUserData } from "@/server/realtime/users";
+import { auth } from "@/lib/firebase";
+// types
+import { MyUser } from "@/types/realtime_db";
 // assets
 import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 // shadcn components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+// components
+import MyMessage from "./MyMessage";
+import Reply from "./Reply";
 
 export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [otherUser, setOtherUser] = useState<MyUser | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
   const { messages, loading, sendMessage } = useMessages(otherUserId || "");
+
+  useEffect(() => {
+    if (!otherUserId) return;
+
+    const fetchUserData = async () => {
+      const userData = await getUserData(otherUserId);
+      setOtherUser(userData);
+    };
+
+    fetchUserData();
+  }, [otherUserId]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +43,9 @@ export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
     <div className="fixed bottom-4 right-4 w-[600px] rounded-lg border bg-white shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-stone-900 p-2">
-        <h3 className="px-2 font-semibold">Chat</h3>
+        <h3 className="px-2 text-xl font-semibold">
+          {otherUserId ? otherUser?.displayName || "Anonymous" : "Chat"}
+        </h3>
         <Button onClick={() => setIsOpen(!isOpen)} variant="ghost" size="icon">
           {isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}
         </Button>
@@ -37,12 +58,25 @@ export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
           isOpen ? "max-h-[850px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
-        {otherUserId ? (
-          <div className="p-4">Placeholder</div>
-        ) : (
-          <div className="p-4">Select someone from the sidebar to start chatting!</div>
-        )}
-        <div className="h-[750px] overflow-y-auto p-4">This is the content</div>
+        <div className="h-[750px] overflow-y-auto p-4">
+          {otherUserId ? (
+            <div className="flex flex-col space-y-5">
+              {messages.map((message) => (
+                <div key={message.id} className="">
+                  {message.senderId === otherUserId ? (
+                    <Reply otherUser={otherUser} message={message} />
+                  ) : (
+                    <MyMessage currUser={auth.currentUser} message={message} />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 text-lg font-normal">
+              Select someone from the sidebar to start chatting!
+            </div>
+          )}
+        </div>
 
         {/* Input area */}
         <div className="border-t border-stone-900 p-4">
@@ -59,7 +93,7 @@ export default function ChatBox({ otherUserId }: { otherUserId?: string }) {
               onClick={handleSend}
               disabled={!otherUserId}
               variant="outline"
-              className="shadow-sm shadow-green-500"
+              className="shadow-md"
             >
               Send
             </Button>
